@@ -1,0 +1,30 @@
+#{{ ansible_managed }}
+
+[global]
+	interfaces = {{ samba_interfaces }}
+	hostname lookups = yes
+	hosts allow = {{ samba_hosts_allow }}
+	workgroup = {{ samba_workgroup }}
+	security = user
+	passdb backend = tdbsam
+	netbios name = {{ samba_netbios_name }}
+	{{ samba_maptoguest }}
+	
+	log file = {{ samba_log_file_path }}
+	log level = {{ samba_log_level }}
+	max log size = {{ samba_log_max_size }}
+
+{% for current_share in samba_service_shares %}
+
+[{{ current_share['name'] }}]
+	comment = {{ current_share['comment'] }}
+	path = {{ current_share['share_path'] }}
+	{{ current_share['conf_access_rights'] }}
+{% if current_share['create_mask'] != "" %}
+	{{ current_share['create_mask'] }}
+{% endif %}
+{% if current_share['directory_mask'] != "" %}
+	{{ current_share['directory_mask'] }}
+{% endif %}
+	{{ current_share['read_only'] }}
+{% endfor %}

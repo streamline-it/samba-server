@@ -1,0 +1,22 @@
+---
+- name: restart samba services (systemd)
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    state: restarted
+  loop: 
+    - smb
+    - nmb
+  when:
+    ansible_distribution_major_version == "9" or
+    ansible_distribution_major_version == "8" or
+    ansible_distribution_major_version == "7" 
+
+- name: restart samba services (service)
+  ansible.builtin.service:
+    name: "{{ item }}"
+    state: restarted
+  loop: 
+    - smb
+    - nmb
+  when:
+    ansible_distribution_major_version == "6"

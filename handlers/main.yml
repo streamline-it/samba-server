@@ -1,0 +1,4 @@
+---
+# handlers file for samba
+- name: restart samba services
+  include_tasks: "handlers/{{ ansible_os_family }}_restart_samba.yml"

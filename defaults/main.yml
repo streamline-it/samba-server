@@ -1,0 +1,41 @@
+# defaults file for samba
+samba_smb_group: smbusers
+samba_smb_smbuser: smbuser
+samba_netbios_name: server
+samba_maptoguest: "map to guest = bad user"
+samba_interfaces: 127.0.0.1
+samba_client_list: ""
+samba_hosts_allow: "127.0.0.1 {{ samba_client_list }}"
+samba_workgroup: workgroup
+samba_log_file_path: /var/log/samba/log.smbd
+samba_log_level: 2
+samba_log_max_size: 500
+
+samba_service_shares:
+  - name: docs
+    comment: Documents
+    share_path: /exp/cifs/data/docs
+    mode: 2770
+    conf_access_rights: "write list = {{ samba_smb_group }}"
+    conf_valid_users: "valid users = {{ samba_smb_group }}"
+    create_mask: "create mask = 0660"
+    directory_mask: "directory mask = 0770"
+    read_only: "read only = no"
+  - name: backups
+    comment: Backups
+    share_path: /exp/cifs/backups
+    mode: 2550
+    conf_access_rights: "public = yes"
+    conf_valid_users: "valid users = {{ samba_smb_group }}"
+    create_mask: ""
+    directory_mask: ""
+    read_only: "read only = yes"
+  - name: public
+    comment: Public
+    share_path: /exp/cifs/data/public
+    mode: 2550
+    conf_access_rights: "public = yes"
+    conf_valid_users: ""
+    create_mask: ""
+    directory_mask: ""
+    read_only: "read only = yes"
