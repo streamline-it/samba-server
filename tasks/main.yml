@@ -1,0 +1,30 @@
+---
+# tasks file for samba
+- name: make sure samba group exists
+  ansible.builtin.group:
+    name: "{{ samba_smb_group }}"
+    state: present
+
+- name: call tasks to make sure Samba packages are installed
+  ansible.builtin.include_tasks: "tasks/{{ ansible_os_family }}_install_pkgs.yml"
+
+- name: make sure Samba's data directories are created
+  ansible.builtin.file:
+    path: "{{ item['share_path'] }}"
+    mode: "{{ item['mode'] }}"
+    group: "{{ samba_smb_group }}"
+    owner: root
+    setype: samba_share_t
+    state: directory
+  loop:
+    "{{ samba_service_shares }}"
+  
+- name: make sure Samba's configuration is setup
+  ansible.builtin.template:
+    src: templates/smb.conf.j2
+    dest: /etc/samba/smb.conf
+    mode: 0600
+  notify: restart samba services
+
+- name: call tasks to make sure necessary services are enabled/started
+  ansible.builtin.include_tasks: "tasks/{{ ansible_os_family }}_start_svc.yml"
