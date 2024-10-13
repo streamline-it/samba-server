@@ -28,3 +28,13 @@
 
 - name: call tasks to make sure necessary services are enabled/started
   ansible.builtin.include_tasks: "tasks/{{ ansible_os_family }}_start_svc.yml"
+
+- name: make sure to add the samba users
+  register: smbpasswd
+  changed_when: "'Added user' in smbpasswd.stdout"
+  loop: 
+    "{{ samba_userlist }}"
+  ansible.builtin.shell: >
+    (pdbedit --user={{ item.username }} 2>&1 > /dev/null)
+     || (echo '{{ item.password }}'; echo '{{ item.password }}')
+     | smbpasswd -s -a {{ item.username }}

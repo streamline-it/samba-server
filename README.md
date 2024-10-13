@@ -15,6 +15,12 @@ Variables for samba role
 
 
 # defaults file for samba
+
+# following variable should be secured in a vault
+samba_userlist:
+  username: ''
+  password: ''
+
 # user group used for the directory structure for Discretionary Access Control
 samba_smb_group: smbusers
 # This user will exist on the host and can be used to mount the samba share to the client
@@ -80,7 +86,7 @@ Including an example of how to use your role (for instance, with variables passe
 
     - hosts: servers
       roles:
-         - { role: username.rolename, x: 42 }
+         - name: samba-server
 
 License
 -------

@@ -1,4 +1,10 @@
 # defaults file for samba
+
+# the following variable should be secured in a encrypted vault
+samba_userlist: 
+  username: ''
+  password: ''
+
 samba_smb_group: smbusers
 samba_smb_smbuser: smbuser
 samba_netbios_name: server
