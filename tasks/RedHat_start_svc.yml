@@ -1,25 +1,25 @@
 ---
 - name: make sure samba services are enabled and running (systemd)
+  when: (ansible_distribution_major_version == "9" or
+         ansible_distribution_major_version == "8" or
+         ansible_distribution_major_version == "7")
+  loop:
+    - smb
+    - nmb
+  notify: restart samba services
   ansible.builtin.systemd:
     name: "{{ item }}"
     enabled: true
     state: started
+
+- name: make sure samba services are enabled and running (service)
+  notify: restart samba services
+  when: 
+    - ansible_distribution_major_version == "6"
   loop:
     - smb
     - nmb
-  notify: restart samba services
-  when: (ansible_distribution_major_version == "9" or
-         ansible_distribution_major_version == "8" or
-         ansible_distribution_major_version == "7")
-
-- name: make sure samba services are enabled and running (service)
   ansible.builtin.service:
     name: "{{ item }}"
     enabled: true
     state: started
-  loop:
-    - smb
-    - nmb
-  notify: restart samba services
-  when: 
-    - ansible_distribution_major_version == "6"
