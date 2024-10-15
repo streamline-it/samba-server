@@ -16,7 +16,7 @@
   loop:
     - samba
     - samba-client
-   ansible.builtin.yum:
+  ansible.builtin.yum:
     name: "{{ item }}"
     state: present
 
