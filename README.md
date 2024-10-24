@@ -55,6 +55,7 @@ samba_service_shares:
     create_mask: "create mask = 0660"
     directory_mask: "directory mask = 0770"
     read_only: "read only = no"
+    force_group: "{{ samba_group }}"
   - name: backups
     comment: Backups
     share_path: /exp/cifs/backups
@@ -64,6 +65,7 @@ samba_service_shares:
     create_mask: ""
     directory_mask: ""
     read_only: "read only = yes"
+    force_group: "{{ samba_group }}"
   - name: public
     comment: Public
     share_path: /exp/cifs/data/public
@@ -73,6 +75,7 @@ samba_service_shares:
     create_mask: ""
     directory_mask: ""
     read_only: "read only = yes"
+    force_group: "{{ samba_group }}"
 
 Dependencies
 ------------
