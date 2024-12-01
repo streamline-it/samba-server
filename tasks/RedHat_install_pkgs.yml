@@ -4,19 +4,16 @@
         ansible_distribution_major_version == "8" or
         ansible_distribution_major_version == "9")
   loop:
-    - samba
-    - samba-client
+    "{{ samba_svcs }}"
   ansible.builtin.dnf:
-    name: "{{ item }}"
+    name: "{{ item['name'] }}"
     state: present
 
 - name: make sure needed packages are installed for Samba (via yum)
   when: 
     - ansible_distribution_major_version == "6"
   loop:
-    - samba
-    - samba-client
+    "{{ samba_svcs }}"
   ansible.builtin.yum:
-    name: "{{ item }}"
+    name: "{{ item['name'] }}"
     state: present
-

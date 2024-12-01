@@ -1,0 +1,9 @@
+---
+samba_config_filepath: "{{ samba_jail_path}}/usr/local/etc/samba/smb.conf"
+
+samba_svcs:
+  - name: smbd
+  - name: nmbd
+
+samba_pkgs:
+  - name: samba416

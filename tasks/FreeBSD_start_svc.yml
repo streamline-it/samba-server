@@ -1,0 +1,14 @@
+---
+- name: make sure samba services are enabled and running on the host
+  loop:
+    "{{ samba_svcs }}"
+  ansible.builtin.service:
+    name: "{{ item['name'] }}"
+    enabled: true
+    state: started
+
+- name: make sure samba services are enabled and running in the jail
+  loop:
+    "{{ samba_svcs }}"
+  ansible.builtin.command:
+    cmd: jail -lU root "{{ samba_jail_name }} service {{ item['name'] }} start"

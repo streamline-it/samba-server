@@ -2,7 +2,7 @@ galaxy_info:
   author: rich o'hara
   description: creates a samba server
   company: streamline-it
-  version: v1.2
+  version: v1.6
 
   # If the issue tracker for your role is not on github, uncomment the
   # next line and provide a value

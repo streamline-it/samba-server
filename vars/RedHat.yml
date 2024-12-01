@@ -1,0 +1,9 @@
+---
+samba_config_filepath: /etc/samba/smb.conf
+samba_svcs:
+  - name: smb
+  - name: nmb
+
+samba_pkgs:
+  - name: samba
+  - name: samba-client

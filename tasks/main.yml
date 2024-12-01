@@ -1,9 +1,15 @@
 ---
 # tasks file for samba
-- name: make sure samba group exists
+- name: make sure samba group exists on the host
+  when: samba_jail_it: false
   ansible.builtin.group:
     name: "{{ samba_smb_group }}"
     state: present
+
+- name: make sure samba group exists in the jail
+  when: samba_jail_it: true
+  ansible.builtin.command:
+    cmd: jexec -lU root pw groupadd "{{ samba_jailname }}" -n "{{ samba_smb_group }}"
 
 - name: call tasks to make sure Samba packages are installed
   ansible.builtin.include_tasks: "tasks/{{ ansible_os_family }}_install_pkgs.yml"
@@ -22,14 +28,15 @@
 - name: make sure Samba's configuration is setup
   notify: restart samba services
   ansible.builtin.template:
-    src: templates/smb.conf.j2
-    dest: /etc/samba/smb.conf
-    mode: 0600
+    src: "{{ samba_jail_path }}templates/smb.conf.j2"
+    dest: "{{ samba_config_filepath }}/smb.conf"
+    mode: '0600'
 
 - name: call tasks to make sure necessary services are enabled/started
   ansible.builtin.include_tasks: "tasks/{{ ansible_os_family }}_start_svc.yml"
 
-- name: make sure to add the samba users
+- name: make sure to add the samba users on the host
+  when: samba_jail_it == false
   no_log: true
   register: smbpasswd
   changed_when: "'Added user' in smbpasswd.stdout"
@@ -37,6 +44,21 @@
     "{{ samba_userlist }}"
   args: 
     executable: /bin/bash
+  ansible.builtin.shell: >
+    set -e -o pipefail
+    && (pdbedit --user={{ item.username }} 2>&1 > /dev/null)
+    || (echo '{{ item.password }}'; echo '{{ item.password }}')
+    | smbpasswd -s -a {{ item.username }}
+
+- name: make sure to add the samba users in the jail
+  when: samba_jail_it == false
+  no_log: true
+  register: smbpasswd
+  changed_when: "'Added user' in smbpasswd.stdout"
+  loop: 
+    "{{ samba_userlist }}"
+  args: 
+    executable: /bin/sh
   ansible.builtin.shell: >
     set -e -o pipefail
     && (pdbedit --user={{ item.username }} 2>&1 > /dev/null)
