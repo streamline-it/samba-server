@@ -1,15 +1,35 @@
 ---
 # tasks file for samba
-- name: make sure samba group exists on the host
-  when: samba_jail_it: false
+- name: make sure OS dependent variables are included
+  ansible.builtin.include_vars:
+    "./vars/{{ ansible_os_family }}.yml"
+
+- name: make sure samba group exists on the host not specifying group's gid
+  when: samba_jail_it == false and samba_smb_group_gid == ""
   ansible.builtin.group:
     name: "{{ samba_smb_group }}"
     state: present
 
-- name: make sure samba group exists in the jail
-  when: samba_jail_it: true
+- name: make sure samba group exists on the host specifying group's gid
+  when: samba_jail_it == false and samba_smb_group_gid != ""
+  ansible.builtin.group:
+    name: "{{ samba_smb_group }}"
+    gid: "{{ samba_smb_group_gid }}"
+    state: present
+
+- name: make sure samba group exists in the jail not specifying GID
+  register: group_add_result
+  when: samba_jail_it == true and samba_smb_group_gid == ""
+  failed_when: group_add_result['rc'] > 0 and group_add_result['rc'] != 65
   ansible.builtin.command:
-    cmd: jexec -lU root pw groupadd "{{ samba_jailname }}" -n "{{ samba_smb_group }}"
+    cmd: jexec -lU root {{ samba_jailname }} sh -c 'pw groupadd -n "{{ samba_smb_group }}"'
+
+- name: make sure samba group exists in the jail specifying GID
+  register: group_add_result
+  when: samba_jail_it == true and samba_smb_group_gid != ""
+  failed_when: group_add_result['rc'] > 0 and group_add_result['rc'] != 65
+  ansible.builtin.command:
+    cmd: jexec -lU root {{ samba_jailname }} sh -c 'pw groupadd -n "{{ samba_smb_group }}" -g {{ samba_smb_group_gid }}'
 
 - name: call tasks to make sure Samba packages are installed
   ansible.builtin.include_tasks: "tasks/{{ ansible_os_family }}_install_pkgs.yml"
@@ -18,49 +38,22 @@
   loop:
     "{{ samba_service_shares }}"
   ansible.builtin.file:
-    path: "{{ item['share_path'] }}"
+    path: "{{ item['outside_path'] }}"
     mode: "{{ item['mode'] }}"
     group: "{{ samba_smb_group }}"
     owner: root
     setype: samba_share_t
     state: directory
-    
+ 
 - name: make sure Samba's configuration is setup
   notify: restart samba services
   ansible.builtin.template:
-    src: "{{ samba_jail_path }}templates/smb.conf.j2"
-    dest: "{{ samba_config_filepath }}/smb.conf"
+    src: smb.conf.j2
+    dest: "{{ samba_config_filepath }}"
     mode: '0600'
 
 - name: call tasks to make sure necessary services are enabled/started
   ansible.builtin.include_tasks: "tasks/{{ ansible_os_family }}_start_svc.yml"
 
-- name: make sure to add the samba users on the host
-  when: samba_jail_it == false
-  no_log: true
-  register: smbpasswd
-  changed_when: "'Added user' in smbpasswd.stdout"
-  loop: 
-    "{{ samba_userlist }}"
-  args: 
-    executable: /bin/bash
-  ansible.builtin.shell: >
-    set -e -o pipefail
-    && (pdbedit --user={{ item.username }} 2>&1 > /dev/null)
-    || (echo '{{ item.password }}'; echo '{{ item.password }}')
-    | smbpasswd -s -a {{ item.username }}
-
-- name: make sure to add the samba users in the jail
-  when: samba_jail_it == false
-  no_log: true
-  register: smbpasswd
-  changed_when: "'Added user' in smbpasswd.stdout"
-  loop: 
-    "{{ samba_userlist }}"
-  args: 
-    executable: /bin/sh
-  ansible.builtin.shell: >
-    set -e -o pipefail
-    && (pdbedit --user={{ item.username }} 2>&1 > /dev/null)
-    || (echo '{{ item.password }}'; echo '{{ item.password }}')
-    | smbpasswd -s -a {{ item.username }}
+- name: call tasks to add users
+  ansible.builtin.include_tasks: "tasks/{{ ansible_os_family }}_configure_users.yml"

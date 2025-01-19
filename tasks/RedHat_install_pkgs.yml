@@ -4,7 +4,7 @@
         ansible_distribution_major_version == "8" or
         ansible_distribution_major_version == "9")
   loop:
-    "{{ samba_svcs }}"
+    "{{ samba_pkgs }}"
   ansible.builtin.dnf:
     name: "{{ item['name'] }}"
     state: present
@@ -13,7 +13,7 @@
   when: 
     - ansible_distribution_major_version == "6"
   loop:
-    "{{ samba_svcs }}"
+    "{{ samba_pkgs }}"
   ansible.builtin.yum:
     name: "{{ item['name'] }}"
     state: present

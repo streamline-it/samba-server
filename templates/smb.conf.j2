@@ -1,6 +1,6 @@
 #{{ ansible_managed }}
-
 [global]
+
 	interfaces = {{ samba_interfaces }}
 	hostname lookups = yes
 	hosts allow = {{ samba_hosts_allow }}
@@ -20,6 +20,8 @@
 	comment = {{ current_share['comment'] }}
 	path = {{ current_share['share_path'] }}
 	{{ current_share['conf_access_rights'] }}
+        {{ current_share['conf_valid_users'] }}
+	force group = {{ current_share['force_group'] }}
 {% if current_share['create_mask'] != "" %}
 	{{ current_share['create_mask'] }}
 {% endif %}
@@ -28,3 +30,4 @@
 {% endif %}
 	{{ current_share['read_only'] }}
 {% endfor %}
+

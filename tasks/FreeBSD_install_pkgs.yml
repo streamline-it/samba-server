@@ -1,17 +1,17 @@
 ---
-- name: ensure needed packages are installed on the host
+- name: ensure needed packages are installed on the host (pkgng)
   when: samba_jail_it == false
   loop:
-    - apache24
+    "{{ samba_pkgs }}"
   ansible.builtin.pkgng:
-    name: "{{ item }}"
+    name: "{{ item['name'] }}"
     state: present
 
-- name: ensure needed packages are installed in the specified jail
+- name: ensure needed packages are installed in the specified jail (pkgng)
   when: samba_jail_it == true
   loop:
-    - apache24
+    "{{ samba_pkgs }}"
   ansible.builtin.pkgng:
-    name: "{{ item }}"
+    name: "{{ item['name'] }}"
     jail: "{{ samba_jailname }}"
     state: present

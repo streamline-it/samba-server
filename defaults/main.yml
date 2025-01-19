@@ -6,25 +6,31 @@ samba_jail_it: false
 # name of the jail include the tailing slash
 samba_jailname: 
 
+# netvios name for smb.conf
+samba_netbios_name:
+
 # path to the jail
 samba_jail_path: 
 
 samba_base_share_path: "{{ samba_jail_path }}"
-samba_config_filepath: "{{ samba_jail_path }}/etc/samba"
 # the following variable should be secured in a encrypted vault
 samba_userlist: 
   username: ''
   password: ''
 
 samba_smb_group: smbusers
+samba_smb_group_gid: 
 samba_smb_smbuser: smbuser
 samba_netbios_name: server
 samba_maptoguest: "map to guest = bad user"
 samba_interfaces: 127.0.0.1
+samba_ipv4_address: 
+
 samba_client_list: ""
 samba_hosts_allow: "127.0.0.1 {{ samba_client_list }}"
 samba_workgroup: workgroup
-samba_log_file_path: "{{ samba_jail_path }}/var/log/samba/log.smbd"
+samba_log_directory: samba
+samba_log_file_path: "/var/log/{{ samba_log_directory }}/log.smbd"
 samba_log_level: 2
 samba_log_max_size: 500
 

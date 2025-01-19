@@ -1,0 +1,29 @@
+- name: make sure to add the samba users on the host
+  when: samba_jail_it == false
+  no_log: true
+  register: smbpasswd
+  changed_when: "'Added user' in smbpasswd.stdout"
+  loop: 
+    "{{ samba_userlist }}"
+  args: 
+    executable: /bin/sh
+  ansible.builtin.shell: >
+    set -e -o pipefail
+    && (pdbedit --user={{ item.username }} 2>&1 > /dev/null)
+    || (echo '{{ item.password }}'; echo '{{ item.password }}')
+    | smbpasswd -s -a {{ item.username }}
+
+- name: make sure to add the samba users in the jail
+  when: samba_jail_it == true
+  no_log: true
+  register: smbpasswd
+  changed_when: "'Added user' in smbpasswd.stdout"
+  loop: 
+    "{{ samba_userlist }}"
+  args: 
+    executable: /bin/sh
+  ansible.builtin.shell: >
+    /usr/sbin/jexec -lU root node8_samba sh -c 'set -e -o pipefail
+    && (/usr/local/bin/pdbedit --user={{ item.username }} 2>&1 > /dev/null)
+    || (echo {{ item.password }}; echo {{ item.password }})
+    | /usr/local/bin/smbpasswd -s -a {{ item.username }}'

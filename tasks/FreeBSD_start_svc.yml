@@ -1,5 +1,14 @@
 ---
-- name: make sure samba services are enabled and running on the host
+- name: ensure jail is enabled in rc.conf
+  loop:
+    "{{ samba_svcs }}"
+  community.general.sysrc:
+    jail: "{{ samba_jailname }}"
+    name: "{{ item['name'] }}_enable"
+    value: "YES"
+
+- name: make sure samba services are enabled and running on the host (FreeBSD)
+  when: samba_jail_it == false
   loop:
     "{{ samba_svcs }}"
   ansible.builtin.service:
@@ -7,8 +16,18 @@
     enabled: true
     state: started
 
-- name: make sure samba services are enabled and running in the jail
+- name: check to see if service is running first
+  register: smb_status
+  changed_when: false
+  failed_when: smb_status['rc'] != 0 and smb_status['rc'] != 1
   loop:
     "{{ samba_svcs }}"
   ansible.builtin.command:
-    cmd: jail -lU root "{{ samba_jail_name }} service {{ item['name'] }} start"
+    cmd: jexec -lU root "{{ samba_jailname }}" sh -c 'service "{{ item.name }}" status'
+
+- name: make sure samba services are enabled and running in the jail {FreeBSD)
+  when: 'samba_jail_it == true and smb_status.results.0.stdout_lines is ansible.builtin.search("smbd is not running")'
+  loop:
+    "{{ samba_svcs }}"
+  ansible.builtin.command:
+    cmd: jexec -lU root "{{ samba_jailname }}" sh -c 'service "{{ item.name }}" start'

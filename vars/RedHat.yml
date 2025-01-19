@@ -7,3 +7,5 @@ samba_svcs:
 samba_pkgs:
   - name: samba
   - name: samba-client
+
+samba_config_filepath: /etc/samba/smb.conf
