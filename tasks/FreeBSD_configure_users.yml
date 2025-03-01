@@ -23,7 +23,7 @@
   args: 
     executable: /bin/sh
   ansible.builtin.shell: >
-    /usr/sbin/jexec -lU root node8_samba sh -c 'set -e -o pipefail
+    /usr/sbin/jexec -lU root "{{ samba_jailname }}" sh -c 'set -e -o pipefail
     && (/usr/local/bin/pdbedit --user={{ item.username }} 2>&1 > /dev/null)
     || (echo {{ item.password }}; echo {{ item.password }})
     | /usr/local/bin/smbpasswd -s -a {{ item.username }}'
