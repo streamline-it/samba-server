@@ -40,7 +40,7 @@
   ansible.builtin.file:
     path: "{{ item['outside_path'] }}"
     mode: "{{ item['mode'] }}"
-    group: "{{ samba_smb_group }}"
+    group: "{{ item['force_group'] }}"
     owner: root
     setype: samba_share_t
     state: directory
