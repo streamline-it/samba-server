@@ -1,4 +1,10 @@
+#
+#
 #{{ ansible_managed }}
+#
+#
+
+
 [global]
 
 	interfaces = {{ samba_interfaces }}
@@ -25,9 +31,12 @@
 {% if current_share['create_mask'] != "" %}
 	{{ current_share['create_mask'] }}
 {% endif %}
+{% if current_share['force_create_mode'] != "" %}
+	{{ current_share['force_create_mode'] }}
+{% endif %}
 {% if current_share['directory_mask'] != "" %}
 	{{ current_share['directory_mask'] }}
 {% endif %}
+{% if current_share['read_only'] != "" %}
 	{{ current_share['read_only'] }}
 {% endfor %}
-
