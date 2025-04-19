@@ -1,9 +1,33 @@
 ---
-- name: ensure jail is enabled in rc.conf
+
+- name: ensure jail specific variable(s) are defined before enabling/starting services
+  when: samba_jail_it == true
+  ansible.builtin.assert:
+    that:
+      - samba_jailname is defined
+    fail_msg: "Make sure following variable are defined samba_jailname"
+
+- name: ensure variables are defined before enabling/starting services
+  when: samba_jail_it == false
+  ansible.builtin.assert:
+    that:
+      - samba_samba_svcs is defined
+    fail_msg: "Make sure following variable are defined samba_svcs"
+
+- name: ensure jail has samba enabled in rc.conf
+  when: samba_jail_it == true
   loop:
     "{{ samba_svcs }}"
   community.general.sysrc:
     jail: "{{ samba_jailname }}"
+    name: "{{ item['name'] }}_enable"
+    value: "YES"
+
+- name: ensure host as samba enabled in rc.conf
+  when: samba_jail_it == false
+  loop:
+    "{{ samba_svcs }}"
+  community.general.sysrc:
     name: "{{ item['name'] }}_enable"
     value: "YES"
 

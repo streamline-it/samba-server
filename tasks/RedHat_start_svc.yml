@@ -1,4 +1,10 @@
 ---
+- name: ensure variables are defined before enabling/starting service
+  ansible.builtin.assert:
+    that:
+      - samba_svcs
+    fail_msg: "Make sure following variable(s) are defined; samba_svcs"
+
 - name: make sure samba services are enabled and running (systemd)
   notify: restart samba services
   when: (ansible_distribution_major_version == "9" or
