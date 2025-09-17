@@ -6,9 +6,6 @@ samba_jail_it: false
 # name of the jail include the tailing slash
 samba_jailname: 
 
-# netvios name for smb.conf
-samba_netbios_name:
-
 # path to the jail
 samba_jail_path: 
 
