@@ -4,6 +4,9 @@
   ansible.builtin.include_vars:
     "./vars/{{ ansible_os_family }}.yml"
 
+- name: call tasks to check asserts
+  ansible.builtin.include_tasks: asserts.yml
+
 - name: make sure samba group exists on the host not specifying group's gid
   when: samba_jail_it == false and samba_smb_group_gid == ""
   ansible.builtin.group:

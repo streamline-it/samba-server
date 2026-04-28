@@ -81,6 +81,34 @@ samba_service_shares:
     force_group: "{{ samba_group }}"
     force_create_mode "force create mode = 0660"
 
+# variables from vars
+# RedHat specific variables
+
+# path to the config
+samba_config_filepath: /etc/samba/smb.conf
+
+# services used by samba
+samba_svcs:
+  - name: smb
+  - name: nmb
+# packages to install for samba
+samba_pkgs:
+  - name: samba
+  - name: samba-client
+
+# FreeBSD
+
+# services for samba
+samba_svcs:
+  - name: samba_server
+
+# samba packages to install samba
+samba_pkgs:
+  - name: samba416
+
+# filepath to the samba config
+samba_config_filepath: "{{ samba_jail_path }}/usr/local/etc/smb4.conf"
+
 Dependencies
 ------------
 

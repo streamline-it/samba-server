@@ -1,0 +1,57 @@
+---
+- name: check to see if key variables exist
+  ansible.builtin.assert:
+    that:
+      - samba_svcs is defined
+      - samba_svcs is truthy
+      - samba_pkgs is defined
+      - samba_pkgs is truthy
+      - samba_config_filepath is defined
+      - samba_config_filepath is truthy
+      - samba_jail_it is defined
+      - samba_jail_it == true or samba_jail_it == false
+      - samba_base_share_bath is defined
+      - samba_base_share_bath is truthy
+      - samba_userlist is defined
+      - samba_userlist is truthy
+      - samba_smb_group is defined
+      - samba_smb_group is truthy
+      - samba_smb_group_gid is defined
+      - samba_smb_group_gid is truthy
+      - samba_smb_smbuser is defined
+      - samba_smb_smbuser is truthy
+      - samba_netbios_name is defined
+      - samba_netbios_name is truthy
+      - samba_maptoguest is defined
+      - samba_maptoguest is truthy
+      - samba_interfaces is defined
+      - samba_interfaces is truthy
+      - samba_ipv4_address is defined
+      - samba_ipv4_address is truthy
+      - samba_client_list is defined
+      - samba_client_list is truthy
+      - samba_hosts_allow is defined
+      - samba_hosts_allow is truthy
+      - samba_workgroup is defined
+      - samba_workgroup is truthy
+      - samba_log_directory is defined
+      - samba_log_directory is truthy
+      - samba_log_file_path is defined
+      - samba_log_file_path is truthy
+      - samba_log_level is defined
+      - samba_log_level is truthy
+      - samba_log_max_size is defined
+      - samba_log_max_size is truthy
+      - samba_service_shares is defined
+      - samba_service_shares is truthy
+    fail_msg: "Make sure key variables are defined/have values"
+
+- name: if using a jail, check jail specific variables
+  when: samba_jail_it == true
+  ansible.builtin.assert:
+    that:
+      - samba_jailname is defined
+      - samba_jailname is truthy
+      - samba_jail_path is defined
+      - samba_jail_path is truthy
+    fail_msg: "Make sure jail specific variables have been defined and have values"
