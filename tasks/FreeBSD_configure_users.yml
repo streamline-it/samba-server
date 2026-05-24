@@ -10,9 +10,9 @@
 
 - name: check the jail to see if the user(s) exists
   register: samba_user_check
-  no_log: true 
+  no_log: false 
   when: samba_jail_it == true
-  failed_when: samba_user_check['rc'] != 1 and samba_user_check['rc'] != 2
+  failed_when: samba_user_check['rc'] > 2
   loop:
     "{{ samba_userlist }}"
   ansible.builtin.shell: >
