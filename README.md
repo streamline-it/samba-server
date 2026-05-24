@@ -117,11 +117,90 @@ None.
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+# Installing on a host
 
-    - hosts: servers
-      roles:
-         - name: samba-server
+- name: setup samba for the host
+  hosts: node5.rocky93.example.com
+  become: true
+
+  vars:
+
+    samba_jail_it: false
+
+    # this variable should be in a vault
+    samba_userlist:
+      - username: bob
+        password: secretpassword
+
+    samba_smb_group: sambausers
+    samba_smb_group_gid: 1020
+    samba_smb_smbuser: bob
+    samba_netbios_name: node5_smbserver
+    samba_client_list: 172.16.20.86
+    samba_interfaces: 172.16.20.85
+    samba_workgroup: myworkgroup
+
+    samba_service_shares:
+      - name: docs
+        comment: Documents
+        share_path: "/exp/cifs/docs"
+        outside_path: "{{ samba_base_share_path }}/exp/cifs/data/docs"
+        mode: 2770
+        conf_access_rights: "write list = {{ samba_smb_group }}"
+        conf_valid_users: "valid users = {{ samba_smb_group }}"
+        create_mask: "create mask = 0660"
+        directory_mask: "directory mask = 0770"
+        read_only: "read only = no"
+        force_group: "{{ samba_smb_group }}"
+        force_create_mode: "force create mode = 0660"
+
+  roles:
+
+    - name: samba-server
+
+# installing into a jail
+
+- name: setup samba for the jail
+  hosts: node8.freebsd13.example.com
+  become: true
+
+  vars:
+
+    my_workgroup: jp2_samba
+
+    samba_jail_it: true
+    samba_jailname: jp2_samba
+
+    # this variable should be in a vault
+    samba_userlist:
+      - username: bob
+        password: secretpassword
+
+    samba_smb_group: sambausers
+    samba_smb_group_gid: 1020
+    samba_smb_smbuser: bob
+    samba_netbios_name: jp2_samba
+    samba_client_list: 172.16.20.86
+    samba_interfaces: 172.16.20.89
+    samba_workgroup: my_workgroup
+
+    samba_service_shares:
+      - name: docs
+        comment: Documents
+        share_path: "/exp/cifs/docs"
+        outside_path: "{{ samba_base_share_path }}/exp/cifs/data/docs"
+        mode: 2770
+        conf_access_rights: "write list = {{ samba_smb_group }}"
+        conf_valid_users: "valid users = {{ samba_smb_group }}"
+        create_mask: "create mask = 0660"
+        directory_mask: "directory mask = 0770"
+        read_only: "read only = no"
+        force_group: "{{ samba_smb_group }}"
+        force_create_mode: "force create mode = 0660"
+
+  roles:
+
+    - name: samba-server
 
 License
 -------

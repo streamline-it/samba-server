@@ -10,8 +10,6 @@
       - samba_config_filepath is truthy
       - samba_jail_it is defined
       - samba_jail_it == true or samba_jail_it == false
-      - samba_base_share_bath is defined
-      - samba_base_share_bath is truthy
       - samba_userlist is defined
       - samba_userlist is truthy
       - samba_smb_group is defined
@@ -54,4 +52,6 @@
       - samba_jailname is truthy
       - samba_jail_path is defined
       - samba_jail_path is truthy
+      - samba_base_share_path is defined
+      - samba_base_share_path is truthy
     fail_msg: "Make sure jail specific variables have been defined and have values"

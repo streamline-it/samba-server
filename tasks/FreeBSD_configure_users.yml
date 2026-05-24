@@ -1,3 +1,33 @@
+- name: make sure to add the users to the host
+  when: samba_jail_it == false
+  no_log: true
+  loop:
+    "{{ samba_userlist }}"
+  ansible.builtin.user:
+    name: "{{ item['username'] }}"
+    groups: "{{ samba_smb_group }}"
+    password: "{{ item['password'] | password_hash('sha512', 'mysecretsalt') }}"
+
+- name: check the jail to see if the user(s) exists
+  register: samba_user_check
+  no_log: true 
+  when: samba_jail_it == true
+  failed_when: samba_user_check['rc'] != 1 and samba_user_check['rc'] != 2
+  loop:
+    "{{ samba_userlist }}"
+  ansible.builtin.shell: >
+    /usr/sbin/jexec -lU root {{ samba_jailname }} /usr/bin/getent passwd {{ item['username']}}
+
+- name: make sure to add the users to the jail 
+  no_log: true
+  loop:
+    "{{ samba_userlist | zip(samba_user_check['results']) | list}}"
+  when: 
+    - samba_jail_it == true
+    - item[1]['rc'] == 2
+  ansible.builtin.shell: >
+    jexec -lu root {{ samba_jailname }} pw useradd -n {{ item[0]['username'] }} -G {{ samba_smb_group }}
+  
 - name: make sure to add the samba users on the host
   when: samba_jail_it == false
   no_log: true

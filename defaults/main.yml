@@ -10,6 +10,7 @@ samba_jailname:
 samba_jail_path: 
 
 samba_base_share_path: "{{ samba_jail_path }}"
+
 # the following variable should be secured in a encrypted vault
 samba_userlist: 
   username: ''
@@ -34,7 +35,8 @@ samba_log_max_size: 500
 samba_service_shares:
   - name: docs
     comment: Documents
-    share_path: "{{ samba_base_share_path }}/exp/cifs/data/docs"
+    share_path: "/exp/cifs/data/docs"
+    outside_path: "{{ samba_base_share_path }}/exp/cifs/data/docs"
     mode: 2770
     conf_access_rights: "write list = {{ samba_smb_group }}"
     conf_valid_users: "valid users = {{ samba_smb_group }}"

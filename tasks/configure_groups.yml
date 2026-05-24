@@ -1,0 +1,38 @@
+---
+- name: make sure samba group exists on the host not specifying group's gid
+  when: samba_jail_it == false and samba_smb_group_gid == ""
+  ansible.builtin.group:
+    name: "{{ samba_smb_group }}"
+    state: present
+
+- name: make sure samba group exists on the host specifying group's gid
+  when: samba_jail_it == false and samba_smb_group_gid != ""
+  ansible.builtin.group:
+    name: "{{ samba_smb_group }}"
+    gid: "{{ samba_smb_group_gid }}"
+    state: present
+
+- name: check to see if samba group exists for the jail
+  register: samba_group_check
+  when: samba_jail_it == true
+  changed_when: false
+  failed_when: >
+    samba_group_check['rc'] > 0 and 
+    samba_group_check['rc'] != 2
+  ansible.builtin.command:
+    cmd: jexec -lU root {{ samba_jailname }} sh -c 'getent group "{{ samba_smb_group }}"'
+
+- name: make sure samba group exists in the jail not specifying GID
+  register: group_add_result
+  when: samba_jail_it == true and samba_smb_group_gid == "" and samba_group_check['rc'] == 2 
+  failed_when: group_add_result['rc'] > 0 and group_add_result['rc'] != 65
+  ansible.builtin.command:
+    cmd: jexec -lU root {{ samba_jailname }} sh -c 'pw groupadd -n "{{ samba_smb_group }}"'
+
+- name: make sure samba group exists in the jail specifying GID
+  register: group_add_result
+  when: samba_jail_it == true and samba_smb_group_gid != "" and samba_group_check['rc'] == 2 
+  failed_when: group_add_result['rc'] > 0 and group_add_result['rc'] != 65
+  ansible.builtin.command:
+    cmd: jexec -lU root {{ samba_jailname }} sh -c 'pw groupadd -n "{{ samba_smb_group }}" -g {{ samba_smb_group_gid }}'
+
